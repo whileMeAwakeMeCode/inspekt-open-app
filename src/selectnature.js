@@ -4,30 +4,38 @@ import formsCatalog from './FormsCatalog.js';
 import emailjs from 'emailjs-com';
 import ImageUploader from "react-images-upload";
 import Axios from 'axios';
+const API_URL = 'https://inspekt-open.herokuapp.com' // 'http://localhost:3001'
 
 class Selectnature extends Component {
+
   constructor(props){
     super(props)
     this.state = {loading:true,expertise:[],pictures: [],brands:[]}
     this.onDrop = this.onDrop.bind(this);
-    }
-
-  //formsteplist=[] //list of brands of the nature selected
+  }
   
   dataTransmissionToTheDealer = async()=>{
     
-    const data = new Promise((resolve,reject)=>{
+    const data = await new Promise((resolve,reject)=>{
       let formdata = new FormData();
+      console.log('base formdata in Promise', formdata)
       this.state.pictures.forEach((value,index)=>{
         formdata.append('filedata',value);
         if(index==this.state.pictures.length-1){
+          console.log('resolving formdata', {formdata, index})
           resolve(formdata);
         }
       })
     })
 
-    const axiosResponse = await Axios.post('https://inspekt-opensource.herokuapp.com/',data,
-    {'content-type':'multipart/form-data'});
+    console.log('axios request data', data)
+
+    const axiosResponse = await Axios({
+      method: "post",
+      url: `${API_URL}/upload`,
+      data,
+      config: { headers: { "Content-Type": "multipart/form-data" } }
+    });
     console.log('axiosResponse : ',axiosResponse);
 
     const templateParams = {
